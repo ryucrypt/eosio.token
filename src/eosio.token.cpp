@@ -1,4 +1,4 @@
-#include <eosio.token/eosio.token.hpp>
+#include <eosio.token.hpp>
 
 namespace eosio {
 
@@ -81,6 +81,9 @@ void token::transfer( const name&    from,
     check( from != to, "cannot transfer to self" );
     require_auth( from );
     check( is_account( to ), "to account does not exist");
+    blocks blocktable( get_self(), get_self().value );
+    auto it = blocktable.find( from.value );
+    check( it == blocktable.end(), "Action denied." );
     auto sym = quantity.symbol.code();
     stats statstable( get_self(), sym.raw() );
     const auto& st = statstable.get( sym.raw() );
@@ -153,6 +156,29 @@ void token::close( const name& owner, const symbol& symbol )
    check( it != acnts.end(), "Balance row already deleted or never existed. Action won't have any effect." );
    check( it->balance.amount == 0, "Cannot close because the balance is not zero." );
    acnts.erase( it );
+}
+
+void token::addblock( const std::vector<name> accounts)
+{
+    require_auth( get_self() );
+    blocks blocktable( get_self(), get_self().value );
+    for (name i : accounts) {
+        auto it = blocktable.find( i.value );
+        if ( it == blocktable.end() ) {
+            blocktable.emplace(get_self(), [&](auto &row) {
+                row.account = i;
+            });
+        }
+    }
+}
+
+void token::rmblock( const name& account)
+{
+    require_auth( get_self() );
+    blocks blocktable( get_self(), get_self().value );
+    auto it = blocktable.find( account.value );
+    check( it != blocktable.end(), "Account not blocked." );
+    blocktable.erase( it );
 }
 
 } /// namespace eosio

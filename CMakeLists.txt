@@ -1,13 +1,17 @@
-add_contract(eosio.token eosio.token ${CMAKE_CURRENT_SOURCE_DIR}/src/eosio.token.cpp)
+include(ExternalProject)
+# if no cdt root is given use default path
+if(CDT_ROOT STREQUAL "" OR NOT CDT_ROOT)
+   find_package(cdt)
+endif()
 
-target_include_directories(eosio.token
-   PUBLIC
-   ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-set_target_properties(eosio.token
-   PROPERTIES
-   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
-
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/ricardian/eosio.token.contracts.md.in ${CMAKE_CURRENT_BINARY_DIR}/ricardian/eosio.token.contracts.md @ONLY )
-
-target_compile_options( eosio.token PUBLIC -R${CMAKE_CURRENT_SOURCE_DIR}/ricardian -R${CMAKE_CURRENT_BINARY_DIR}/ricardian )
+ExternalProject_Add(
+   eosio.token_project
+   SOURCE_DIR ${CMAKE_SOURCE_DIR}/src
+   BINARY_DIR ${CMAKE_BINARY_DIR}/eosio.token
+   CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CDT_ROOT}/lib/cmake/cdt/CDTWasmToolchain.cmake
+   UPDATE_COMMAND ""
+   PATCH_COMMAND ""
+   TEST_COMMAND ""
+   INSTALL_COMMAND ""
+   BUILD_ALWAYS 1
+)
