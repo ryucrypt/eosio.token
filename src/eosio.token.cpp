@@ -158,17 +158,16 @@ void token::close( const name& owner, const symbol& symbol )
    acnts.erase( it );
 }
 
-void token::addblock( const std::vector<name> accounts)
+void token::addblock( const name& account, const string& reason)
 {
     require_auth( get_self() );
     blocks blocktable( get_self(), get_self().value );
-    for (name i : accounts) {
-        auto it = blocktable.find( i.value );
-        if ( it == blocktable.end() ) {
-            blocktable.emplace(get_self(), [&](auto &row) {
-                row.account = i;
-            });
-        }
+    auto it = blocktable.find( account.value );
+    if ( it == blocktable.end() ) {
+        blocktable.emplace(get_self(), [&](auto &row) {
+            row.account = account;
+            row.reason = reason;
+        });
     }
 }
 

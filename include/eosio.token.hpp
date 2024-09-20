@@ -102,7 +102,7 @@ namespace eosio {
          void close( const name& owner, const symbol& symbol );
 
          [[eosio::action]]
-         void addblock( const std::vector<name> accounts );
+         void addblock( const name& account, const string& reason );
 
          [[eosio::action]]
          void rmblock( const name& account );
@@ -144,6 +144,7 @@ namespace eosio {
 
         struct [[eosio::table]] block {
             name    account;
+            string  reason;
 
             uint64_t primary_key()const { return account.value; }
          };
